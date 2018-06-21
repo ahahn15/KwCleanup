@@ -1,5 +1,6 @@
 import requests
 import uuid
+import flask
 
 # - query Asset Service by keywords and image type (no illustrations, just stills/no video) and get assets
 # - send images to Visint Service to get # of faces
@@ -7,10 +8,17 @@ import uuid
 # - allow user to choose images to exclude from set
 # - allow user to confirm removal of keywords on unselected images
 # - make call to AKS to remove Family keywords
+app = flask.Flask(__name__)
 
 images = {}
 
 
+@app.route("/health")
+def health():
+    return "ok"
+
+
+@app.route("/assets", methods=["GET"])
 def get_assets():
 
     coord_id = str(uuid.uuid4())
@@ -58,3 +66,7 @@ def remove_keywords(asset_id):
 # def removeKeywords():
 # # call AKS for each image ID to remove Family keywords (??)
 # # iterate through imgsToProcess array and make call to AKS
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8000, debug=False)
