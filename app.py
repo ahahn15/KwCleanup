@@ -1,10 +1,7 @@
 import requests
 import uuid
 import flask
-
-import requests
 import json
-
 
 # - query Asset Service by keywords and image type (no illustrations, just stills/no video) and get assets
 # - send images to Visint Service to get # of faces
@@ -12,34 +9,45 @@ import json
 # - allow user to choose images to exclude from set
 # - allow user to confirm removal of keywords on unselected images
 # - make call to AKS to remove Family keywords
+
 app = flask.Flask(__name__)
 
 images = {}
 
+
 @app.route("/health")
 def health():
-    return "ok"
+    return "Ok"
 
 
 @app.route("/assets", methods=["GET"])
 def get_assets():
-
     coord_id = str(uuid.uuid4())
     token = get_token(coord_id)
-
-    asset_url = '$assetServiceUrl/assets?&fields=keywords&keywordfields=text&keywordtypes=specificpeople'
+    asset_service_url = 'http://usw2-stage-entsvc-asset.lower-getty.cloud'
+    params = '?assettype=image&family=creative&phrase=family%20AND%20animal%20AND%20NOT%20(' \
+             'Digitally%20generated%20image%20OR%20illustration)&pagesize=100&recency=last12months&deliverysizes=comp1024' \
+             '&deliveryscheme=http&fields=deliveryurls'
+    asset_url = 'http://usw2-stage-entsvc-asset.lower-getty.cloud/search?assettype=image&family=creative&phrase=family%20AND%20animal%20AND%20NOT%20(Digitally%20generated%20image%20OR%20illustration)&recency=last12months&deliverysizes=comp1024&deliveryscheme=http&fields=deliveryurls'
     headers = {
-        'Accept': 'JsonMimeType',
+        'Accept': 'application/json',
         'GI-Security-Token': token,
         'GI-Coordination-Id': coord_id
     }
-    asset_ids = requests.get(asset_url, headers=headers)
-    for asset_id in asset_ids:
-        assess_faces(asset_id)
+
+    asset_service_response = requests.get(asset_url, headers=headers)
+    assets = json.loads(str(asset_service_response.content, 'utf-8'))
+    assets = assets['Assets']
+    for asset in assets:
+        asset_id = asset['Id']
+        delivery_url = asset['DeliveryUrls']['Comp1024']
+        # assess_faces(asset_id, delivery_url)
+
+    dict_string = json.dumps(images)
+    return dict_string
 
 
 def get_token(coord_id):
-
     token_url = 'https://usw2-stage-entsvc-securitytoken.lower-getty.cloud:443/SecurityToken/systems/1580/authenticate'
     headers = {
         'Accept': 'application/json',
