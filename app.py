@@ -1,31 +1,19 @@
 
-# - query Asset Service by keywords and image type (no illustrations, just stills/no video) and get assets
-# - send images to Visint Service to get # of faces
-# - show images with 0-1 faces
-# - allow user to choose images to exclude from set
-# - allow user to confirm removal of keywords on unselected images
-# - make call to AKS to remove Family keywords
+
+import requests
+import json
+imagesToProcess = []
 
 
-imgsToProcess = []
+def populateImageArray():
 
-def getAssets():
+    baseUrl = "http://visint-service.sandbox-getty.cloud/v1/faces/count?url="
+    delivery_url = "http://media.stage-gettyimages.com/photos/happy-family-with-dog-sitting-together-in-cozy-living-room-picture-id909597982"
+    number_of_faces_request = requests.get(baseUrl + delivery_url)
+    number_of_faces = number_of_faces_request.json()
 
-# query Asset Service (returns Asset IDs)
-# use delivery URL to get images
+    if number_of_faces < 2:
+        #add asset id to images to process array
 
-assetIds = assetService.get(asdfasdfasdf)
-for each assetId in assetIds:
-    url = get delivery url for assetIds
-    populateImageArray(url)
-
-
-def populateImageArray(url):
-# for each image, call visint service (returns an integer >= 0)
-# if number of faces is 0 - 1, then keep the image, otherwise remove it
-numberOfFaces = visintservice.getFaces(url)
-if (numberOfFaces < 2) add assetId to imgsToProcess
-
-def removeKeywords():
-# call AKS for each image ID to remove Family keywords (??)
-# iterate through imgsToProcess array and make call to AKS
+    print(number_of_faces_request.status_code)
+    print(number_of_faces_request.json())
