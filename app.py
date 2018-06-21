@@ -13,7 +13,6 @@ images = {}
 
 def get_assets():
 
-    # get token
     coord_id = str(uuid.uuid4())
     token = get_token(coord_id)
 
@@ -23,7 +22,6 @@ def get_assets():
         'GI-Security-Token': token,
         'GI-Coordination-Id': coord_id
     }
-
     asset_ids = requests.get(asset_url, headers=headers)
     for asset_id in asset_ids:
         assess_faces(asset_id)
@@ -38,12 +36,15 @@ def get_token(coord_id):
         'Gi-System-Password': 'systemPassword12345678==',
         'GI-Coordination-Id': coord_id
     }
-
     token = requests.post(token_url, json={1580}, headers=headers)
     return token
 
 
 def assess_faces(asset_id):
+    return 0
+
+
+def remove_keywords(asset_id):
     return 0
 
 # def populateImageArray(imageUrl):
