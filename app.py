@@ -78,16 +78,14 @@ def assess_faces(asset_id, delivery_url):
 #
 
 
-
-def get_asset_keywords():
+def get_asset_keywords(asset_id):
     url = "http://10.196.34.15/AssetKeywordingService/AssetKeywordingService.asmx"
-    headers = {'content-type': 'text/xml', 'SOAPAction': 'http://GettyImages.com/GetAssetKeywords', 'Content-Length': '1512'}
-    body = """<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GetAssetKeywords xmlns="http://GettyImages.com/"><GetAssetKeywordsRequest xmlns="http://GettyImages.com/GetAssetKeywords.xsd"><MasterIDList><MasterID>"739279637"</MasterID></MasterIDList><IncludeAncestors>true</IncludeAncestors><Mode>1</Mode></GetAssetKeywordsRequest></GetAssetKeywords></soap:Body></soap:Envelope>"""
+    headers = {'content-type': 'text/xml', 'SOAPAction': 'http://GettyImages.com/GetAssetKeywords', 'Content-Length': '534'}
+    body_template = """<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GetAssetKeywords xmlns="http://GettyImages.com/"><GetAssetKeywordsRequest xmlns="http://GettyImages.com/GetAssetKeywords.xsd"><MasterIDList><MasterID>1234</MasterID></MasterIDList><IncludeAncestors>true</IncludeAncestors><Mode>4</Mode></GetAssetKeywordsRequest></GetAssetKeywords></soap:Body></soap:Envelope>"""
+    body = body_template.replace('1234', asset_id)
     response = requests.post(url, data=body, headers=headers)
-    print(response.content)
-    print(response.status_code)
-    # fist try and git the assetkeywordservice to see if if can return the right things
-    # loop through asset_id_array and remove all family keywords associated (SaveAssetDeltas)
+    return response
+
 
 def remove_asset_keywords():
     url = "http://akstest02.gettyimages.net/AssetKeywordingService/AssetKeywordingService.asmx"
