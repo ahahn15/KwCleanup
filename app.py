@@ -5,6 +5,8 @@ import flask
 import requests
 import json
 
+import xml.etree.ElementTree as ET
+
 
 # - query Asset Service by keywords and image type (no illustrations, just stills/no video) and get assets
 # - send images to Visint Service to get # of faces
@@ -67,14 +69,14 @@ def assess_faces(asset_id, delivery_url):
 
 
 
-#
 
 
 
 def get_asset_keywords():
-    url = "http://10.196.34.15/AssetKeywordingService/AssetKeywordingService.asmx"
+    url = "http://seafrewebaskstg.sea.amer.gettywan.com/AssetKeywordingService/AssetKeywordingService.asmx"
     headers = {'content-type': 'text/xml', 'SOAPAction': 'http://GettyImages.com/GetAssetKeywords', 'Content-Length': '1512'}
-    body = """<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GetAssetKeywords xmlns="http://GettyImages.com/"><GetAssetKeywordsRequest xmlns="http://GettyImages.com/GetAssetKeywords.xsd"><MasterIDList><MasterID>"739279637"</MasterID></MasterIDList><IncludeAncestors>true</IncludeAncestors><Mode>1</Mode></GetAssetKeywordsRequest></GetAssetKeywords></soap:Body></soap:Envelope>"""
+    body = """<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GetAssetKeywords xmlns="http://GettyImages.com/"><GetAssetKeywordsRequest xmlns="http://GettyImages.com/GetAssetKeywords.xsd"><MasterIDList><MasterID>90000291</MasterID></MasterIDList><IncludeAncestors>true</IncludeAncestors><Mode>4</Mode></GetAssetKeywordsRequest></GetAssetKeywords></soap:Body></soap:Envelope>"""
+
     response = requests.post(url, data=body, headers=headers)
     print(response.content)
     print(response.status_code)
@@ -82,37 +84,9 @@ def get_asset_keywords():
     # loop through asset_id_array and remove all family keywords associated (SaveAssetDeltas)
 
 def remove_asset_keywords():
-    url = "http://akstest02.gettyimages.net/AssetKeywordingService/AssetKeywordingService.asmx"
+    url = "http://seafrewebaskstg.sea.amer.gettywan.com/AssetKeywordingService/AssetKeywordingService.asmx"
     headers = {'content-type': 'text/xml', 'SOAPAction': 'http://GettyImages.com/SaveAssetDeltas'}
-    body = """<?xml version="1.0" encoding="utf-8"?>
-            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-              <soap:Body>
-                <SaveAssetDeltas xmlns="http://GettyImages.com/">
-                  <SaveAssetDeltasRequest xmlns="http://GettyImages.com/SaveAssetDeltasRequest.xsd">
-                    <AssetDeltaSet>
-                      <MasterIDs xmlns="http://GettyImages.com/AssetDelta.xsd">string</MasterIDs>
-                      <MasterIDs xmlns="http://GettyImages.com/AssetDelta.xsd">string</MasterIDs>
-                      <Deltas xmlns="http://GettyImages.com/AssetDelta.xsd">
-                        <DeltaType>None or Insert or Delete or Upsert or Update or Clone or Replace</DeltaType>
-                        <FieldType>Info or Metadata or Keyword or AmbiguousTerm or KeywordDaughters or None</FieldType>
-                        <ItemID>int</ItemID>
-                        <ItemValue>string</ItemValue>
-                      </Deltas>
-                      <Deltas xmlns="http://GettyImages.com/AssetDelta.xsd">
-                        <DeltaType>None or Insert or Delete or Upsert or Update or Clone or Replace</DeltaType>
-                        <FieldType>Info or Metadata or Keyword or AmbiguousTerm or KeywordDaughters or None</FieldType>
-                        <ItemID>int</ItemID>
-                        <ItemValue>string</ItemValue>
-                      </Deltas>
-                      <VitriaPublishPriority xmlns="http://GettyImages.com/AssetDelta.xsd">string</VitriaPublishPriority>
-                      <BlockVitriaPublish xmlns="http://GettyImages.com/AssetDelta.xsd">boolean</BlockVitriaPublish>
-                    </AssetDeltaSet>
-                    <User>string</User>
-                    <UserGroupCode>string</UserGroupCode>
-                  </SaveAssetDeltasRequest>
-                </SaveAssetDeltas>
-              </soap:Body>
-            </soap:Envelope>"""
+    body = """<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><SaveAssetDeltas xmlns="http://GettyImages.com/"><SaveAssetDeltasRequest xmlns="http://GettyImages.com/SaveAssetDeltasRequest.xsd"><AssetDeltaSet><MasterIDs xmlns="http://GettyImages.com/AssetDelta.xsd">string</MasterIDs><MasterIDs xmlns="http://GettyImages.com/AssetDelta.xsd">string</MasterIDs><Deltas xmlns="http://GettyImages.com/AssetDelta.xsd"><DeltaType>None or Insert or Delete or Upsert or Update or Clone or Replace</DeltaType><FieldType>Info or Metadata or Keyword or AmbiguousTerm or KeywordDaughters or None</FieldType><ItemID>int</ItemID><ItemValue>string</ItemValue></Deltas><Deltas xmlns="http://GettyImages.com/AssetDelta.xsd"><DeltaType>None or Insert or Delete or Upsert or Update or Clone or Replace</DeltaType><FieldType>Info or Metadata or Keyword or AmbiguousTerm or KeywordDaughters or None</FieldType><ItemID>int</ItemID><ItemValue>string</ItemValue></Deltas><VitriaPublishPriority xmlns="http://GettyImages.com/AssetDelta.xsd">string</VitriaPublishPriority><BlockVitriaPublish xmlns="http://GettyImages.com/AssetDelta.xsd">boolean</BlockVitriaPublish></AssetDeltaSet><User>string</User><UserGroupCode>string</UserGroupCode></SaveAssetDeltasRequest></SaveAssetDeltas></soap:Body></soap:Envelope>"""
 
 # # call AKS for each image ID to remove Family keywords (??)
 # # iterate through imgsToProcess array and make call to AKS
