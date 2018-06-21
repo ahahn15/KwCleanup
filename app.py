@@ -4,7 +4,7 @@ import flask
 
 import requests
 import json
-imagesToProcess = []
+
 
 # - query Asset Service by keywords and image type (no illustrations, just stills/no video) and get assets
 # - send images to Visint Service to get # of faces
@@ -15,7 +15,6 @@ imagesToProcess = []
 app = flask.Flask(__name__)
 
 images = {}
-
 
 @app.route("/health")
 def health():
@@ -52,31 +51,69 @@ def get_token(coord_id):
     return token
 
 
-def assess_faces(asset_id):
-    baseUrl = "http://visint-service.sandbox-getty.cloud/v1/faces/count?url="
-    delivery_url = "http://media.stage-gettyimages.com/photos/happy-family-with-dog-sitting-together-in-cozy-living-room-picture-id909597982"
-    number_of_faces_request = requests.get(baseUrl + delivery_url)
+def assess_faces(asset_id, delivery_url):
+    # asset_id = "847742514"
+    # delivery_url = "http://media.stage-gettyimages.com/photos/dog-standing-on-ice-wearing-christmas-booties-picture-id847742514?s=612x612"
+    base_url = "http://visint-service.sandbox-getty.cloud/v1/faces/count?url="
+    number_of_faces_request = requests.get(base_url + delivery_url)
     number_of_faces = number_of_faces_request.json()
 
-    if number_of_faces < 2:
-    # add asset id to images to process array
-
     print(number_of_faces_request.status_code)
-    print(number_of_faces_request.json())
+
+    if 0 <= number_of_faces < 2:
+        images[asset_id] = delivery_url
+
+    print(json.dumps(images))
 
 
-def remove_keywords(asset_id):
-    return 0
 
-# def populateImageArray(imageUrl):
-# # for each image, call visint service (returns an integer >= 0)
-# # if number of faces is 0 - 1, then keep the image, otherwise remove it
-# url = ""
-# response = requests.post(url, imageUrl)
-# numberOfFaces = visintservice.getFaces(url)
-# if (numberOfFaces < 2) add assetId to imgsToProcess
 #
-# def removeKeywords():
+
+
+
+def get_asset_keywords():
+    url = "http://10.196.34.15/AssetKeywordingService/AssetKeywordingService.asmx"
+    headers = {'content-type': 'text/xml', 'SOAPAction': 'http://GettyImages.com/GetAssetKeywords', 'Content-Length': '1512'}
+    body = """<?xml version="1.0" encoding="utf-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GetAssetKeywords xmlns="http://GettyImages.com/"><GetAssetKeywordsRequest xmlns="http://GettyImages.com/GetAssetKeywords.xsd"><MasterIDList><MasterID>"739279637"</MasterID></MasterIDList><IncludeAncestors>true</IncludeAncestors><Mode>1</Mode></GetAssetKeywordsRequest></GetAssetKeywords></soap:Body></soap:Envelope>"""
+    response = requests.post(url, data=body, headers=headers)
+    print(response.content)
+    print(response.status_code)
+    # fist try and git the assetkeywordservice to see if if can return the right things
+    # loop through asset_id_array and remove all family keywords associated (SaveAssetDeltas)
+
+def remove_asset_keywords():
+    url = "http://akstest02.gettyimages.net/AssetKeywordingService/AssetKeywordingService.asmx"
+    headers = {'content-type': 'text/xml', 'SOAPAction': 'http://GettyImages.com/SaveAssetDeltas'}
+    body = """<?xml version="1.0" encoding="utf-8"?>
+            <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+              <soap:Body>
+                <SaveAssetDeltas xmlns="http://GettyImages.com/">
+                  <SaveAssetDeltasRequest xmlns="http://GettyImages.com/SaveAssetDeltasRequest.xsd">
+                    <AssetDeltaSet>
+                      <MasterIDs xmlns="http://GettyImages.com/AssetDelta.xsd">string</MasterIDs>
+                      <MasterIDs xmlns="http://GettyImages.com/AssetDelta.xsd">string</MasterIDs>
+                      <Deltas xmlns="http://GettyImages.com/AssetDelta.xsd">
+                        <DeltaType>None or Insert or Delete or Upsert or Update or Clone or Replace</DeltaType>
+                        <FieldType>Info or Metadata or Keyword or AmbiguousTerm or KeywordDaughters or None</FieldType>
+                        <ItemID>int</ItemID>
+                        <ItemValue>string</ItemValue>
+                      </Deltas>
+                      <Deltas xmlns="http://GettyImages.com/AssetDelta.xsd">
+                        <DeltaType>None or Insert or Delete or Upsert or Update or Clone or Replace</DeltaType>
+                        <FieldType>Info or Metadata or Keyword or AmbiguousTerm or KeywordDaughters or None</FieldType>
+                        <ItemID>int</ItemID>
+                        <ItemValue>string</ItemValue>
+                      </Deltas>
+                      <VitriaPublishPriority xmlns="http://GettyImages.com/AssetDelta.xsd">string</VitriaPublishPriority>
+                      <BlockVitriaPublish xmlns="http://GettyImages.com/AssetDelta.xsd">boolean</BlockVitriaPublish>
+                    </AssetDeltaSet>
+                    <User>string</User>
+                    <UserGroupCode>string</UserGroupCode>
+                  </SaveAssetDeltasRequest>
+                </SaveAssetDeltas>
+              </soap:Body>
+            </soap:Envelope>"""
+
 # # call AKS for each image ID to remove Family keywords (??)
 # # iterate through imgsToProcess array and make call to AKS
 
