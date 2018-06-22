@@ -17,6 +17,7 @@ app = flask.Flask(__name__)
 images = {"Images": []}
 url_queue = Queue()
 print_lock = threading.Lock()
+family_terms = ['family', 'dad', 'daughter', 'father', 'children', 'boys', 'girls', 'son']
 
 
 @app.route("/health")
@@ -36,8 +37,12 @@ def get_assets():
     for asset in assets:
         asset_id = asset['Id']
         delivery_url = asset['DeliveryUrls']['Comp1024']
-        url_queue.put((asset_id, delivery_url))
+        if any(term in delivery_url for term in family_terms):
+            continue
+        else:
+            url_queue.put((asset_id, delivery_url))
 
+    print("Elements in queue: ", url_queue.qsize())
     start = time.time()
     for i in range(50):
         t = threading.Thread(target=__process_queue)
@@ -81,7 +86,7 @@ def __get_token(coord_id):
 def __call_asset_service(token, coord_id):
     asset_service_url = 'http://usw2-stage-entsvc-asset.lower-getty.cloud'
     params = '?assettype=image&family=creative&phrase=family%20AND%20animal%20AND%20NOT%20(' \
-             'Digitally%20generated%20image%20OR%20illustration)&pagesize=50&recency=last12months&deliverysizes' \
+             'Digitally%20generated%20image%20OR%20illustration)&pagesize=100&begindate=1%2F1%2F2013&enddate=1%2F1%2F2015&deliverysizes' \
              '=comp1024&deliveryscheme=http&fields=deliveryurls'
     asset_url = asset_service_url + "/search" + params
     headers = {
