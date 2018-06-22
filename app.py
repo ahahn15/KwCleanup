@@ -65,7 +65,6 @@ def remove_asset_keywords(asset_id_array):
         body = body_template.replace('1234', asset)
         response = requests.post(url, data=body, headers=headers)
         print(response.content)
-        return response
 
 
 def __get_token(coord_id):
