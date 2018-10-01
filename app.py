@@ -80,7 +80,7 @@ def __get_token(coord_id):
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Gi-System-Password': 'systemPassword12345678==',
+        'Gi-System-Password': 'password-here',
         'GI-Coordination-Id': coord_id
     }
     body = {'ActAsSystemId': 100}
